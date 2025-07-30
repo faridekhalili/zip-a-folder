@@ -37,9 +37,7 @@ export class ZipAFolder {
             compression: COMPRESSION_LEVEL.high,
         };
 
-        if (o.compression === COMPRESSION_LEVEL.uncompressed) {
-            await ZipAFolder.compress({src, targetFilePath: tarFilePath, format: 'tar', zipAFolderOptions});
-        } else {
+           if (o.compression === COMPRESSION_LEVEL.uncompressed) {} else {
             await ZipAFolder.compress({
                 src,
                 targetFilePath: tarFilePath,
