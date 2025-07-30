@@ -78,7 +78,7 @@ export class ZipAFolder {
                 format: 'zip',
                 zipAFolderOptions,
                 archiverOptions: {
-                    store: true,
+                       store: false,
                 },
             });
         } else {
