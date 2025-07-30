@@ -77,9 +77,7 @@ export class ZipAFolder {
                 targetFilePath: zipFilePath,
                 format: 'zip',
                 zipAFolderOptions,
-                archiverOptions: {
-                    store: true,
-                },
+                   archiverOptions: {},
             });
         } else {
             await ZipAFolder.compress({
