@@ -33,9 +33,7 @@ export class ZipAFolder {
         tarFilePath: string | undefined,
         zipAFolderOptions?: ZipAFolderOptions
     ): Promise<void | Error> {
-        const o: ZipAFolderOptions = zipAFolderOptions || {
-            compression: COMPRESSION_LEVEL.high,
-        };
+           const o: ZipAFolderOptions = zipAFolderOptions || {};
 
         if (o.compression === COMPRESSION_LEVEL.uncompressed) {
             await ZipAFolder.compress({src, targetFilePath: tarFilePath, format: 'tar', zipAFolderOptions});
