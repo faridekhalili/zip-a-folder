@@ -16,7 +16,7 @@ describe('Zip-A-Folder Test', function () {
     it('tar should invoke compress for COMPRESSION_LEVEL.uncompressed', async () => {
       
       /** 
-       * Sample 2:
+       * Sample 3:
        * BlockStatement
        * lib/ZipAFolder.ts:40:63
        * -           if (o.compression === COMPRESSION_LEVEL.uncompressed) {
