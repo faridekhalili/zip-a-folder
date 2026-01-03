@@ -16,7 +16,7 @@ describe('Zip-A-Folder Test', function () {
     it('tar with uncompressed option should produce a non-gzipped tar file', async () => {
       
       /**
-       * Sample 3:
+       * Sample 2:
        * ConditionalExpression
        * lib/ZipAFolder.ts:40:13
        * -           if (o.compression === COMPRESSION_LEVEL.uncompressed) {
