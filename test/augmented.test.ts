@@ -13,52 +13,36 @@ describe('Zip-A-Folder Test', function () {
         rimraf.sync('test/*.zip');
     });
 
-    it('tar default compression equals explicit high compression', async () => {
-
-      /**
-       * Sample 5:
-       * ObjectLiteral
-       * lib/ZipAFolder.ts:36:59
-       * -           const o: ZipAFolderOptions = zipAFolderOptions || {
-       * -               compression: COMPRESSION_LEVEL.high,
-       * -           };
-       * +           const o: ZipAFolderOptions = zipAFolderOptions || {};",
-      * */
-
-      const testDefaultTAR = path.resolve(__dirname, 'testDefault.tgz');
-      const testHighTAR = path.resolve(__dirname, 'testHigh.tgz');
-  
-      // Call tar without passing any options (should default to high compression)
-      await tar(path.resolve(__dirname, 'data/'), testDefaultTAR);
-  
-      // Call tar explicitly with high compression
-      await tar(path.resolve(__dirname, 'data/'), testHighTAR, { compression: COMPRESSION_LEVEL.high });
-  
-      // Compare file sizes – they should be identical if the default is set to high compression.
-      const sizeDefault = fs.statSync(testDefaultTAR).size;
-      const sizeHigh = fs.statSync(testHighTAR).size;
-  
-      expect(sizeDefault).toEqual(sizeHigh);
-    });
-
-    it('tar with uncompressed option should produce a non-gzipped tar file', async () => {
+    it('zip should invoke compress for COMPRESSION_LEVEL.uncompressed', async () => {
       
       /**
-       * Sample 4:
-       * ConditionalExpression
-       * lib/ZipAFolder.ts:40:13
+       * Sample 1:
+       * BlockStatement
+       * lib/ZipAFolder.ts:74:63
        * -           if (o.compression === COMPRESSION_LEVEL.uncompressed) {
-       * +           if (false) {",
+       * -               await ZipAFolder.compress({\n-                   src,
+       * -                   targetFilePath: zipFilePath,
+       * -                   format: 'zip',
+       * -                   zipAFolderOptions,
+       * -                   archiverOptions: {
+       * -                       store: true,
+       * -                   },
+       * -               });
+       * -           } else {
+       * +           if (o.compression === COMPRESSION_LEVEL.uncompressed) {} else {",
       * */
       
-      const testUncompressedTar = path.resolve(__dirname, 'testMutated.tar');
-      await tar(path.resolve(__dirname, 'data/'), testUncompressedTar, { compression: COMPRESSION_LEVEL.uncompressed });
+      // Spy on the internal compress method
+      const compressSpy = jest.spyOn(zipafolder as any, 'compress');
+      const testZipPath = path.resolve(__dirname, 'testZipCompressCalled.zip');
       
-      // Read the first two bytes of the file to check for a gzip signature (0x1F, 0x8B)
-      const buffer = fs.readFileSync(testUncompressedTar);
-      const isGzipped = buffer[0] === 0x1F && buffer[1] === 0x8B;
+      await zip(path.resolve(__dirname, 'data/'), testZipPath, { compression: COMPRESSION_LEVEL.uncompressed });
       
-      expect(isGzipped).toBe(false);
+      // In the original code, compress should have been called once.
+      expect(compressSpy).toHaveBeenCalledTimes(1);
+      
+      // Clean up the spy
+      compressSpy.mockRestore();
     });
 
     it('tar should invoke compress for COMPRESSION_LEVEL.uncompressed', async () => {
@@ -85,7 +69,7 @@ describe('Zip-A-Folder Test', function () {
       // Clean up the spy
       compressSpy.mockRestore();
     });
-    
+
     it('zip default compression equals explicit high compression', async () => {
       
       /**
@@ -110,6 +94,54 @@ describe('Zip-A-Folder Test', function () {
       // Compare file sizes – they should be identical if the default is set to high compression.
       const sizeDefault = fs.statSync(testDefaultZIP).size;
       const sizeHigh = fs.statSync(testHighZIP).size;
+  
+      expect(sizeDefault).toEqual(sizeHigh);
+    });
+
+    it('tar with uncompressed option should produce a non-gzipped tar file', async () => {
+      
+      /**
+       * Sample 4:
+       * ConditionalExpression
+       * lib/ZipAFolder.ts:40:13
+       * -           if (o.compression === COMPRESSION_LEVEL.uncompressed) {
+       * +           if (false) {",
+      * */
+      
+      const testUncompressedTar = path.resolve(__dirname, 'testMutated.tar');
+      await tar(path.resolve(__dirname, 'data/'), testUncompressedTar, { compression: COMPRESSION_LEVEL.uncompressed });
+      
+      // Read the first two bytes of the file to check for a gzip signature (0x1F, 0x8B)
+      const buffer = fs.readFileSync(testUncompressedTar);
+      const isGzipped = buffer[0] === 0x1F && buffer[1] === 0x8B;
+      
+      expect(isGzipped).toBe(false);
+    });
+
+    it('tar default compression equals explicit high compression', async () => {
+
+      /**
+       * Sample 5:
+       * ObjectLiteral
+       * lib/ZipAFolder.ts:36:59
+       * -           const o: ZipAFolderOptions = zipAFolderOptions || {
+       * -               compression: COMPRESSION_LEVEL.high,
+       * -           };
+       * +           const o: ZipAFolderOptions = zipAFolderOptions || {};",
+      * */
+
+      const testDefaultTAR = path.resolve(__dirname, 'testDefault.tgz');
+      const testHighTAR = path.resolve(__dirname, 'testHigh.tgz');
+  
+      // Call tar without passing any options (should default to high compression)
+      await tar(path.resolve(__dirname, 'data/'), testDefaultTAR);
+  
+      // Call tar explicitly with high compression
+      await tar(path.resolve(__dirname, 'data/'), testHighTAR, { compression: COMPRESSION_LEVEL.high });
+  
+      // Compare file sizes – they should be identical if the default is set to high compression.
+      const sizeDefault = fs.statSync(testDefaultTAR).size;
+      const sizeHigh = fs.statSync(testHighTAR).size;
   
       expect(sizeDefault).toEqual(sizeHigh);
     });
@@ -147,38 +179,6 @@ describe('Zip-A-Folder Test', function () {
       expect(compressArgs.archiverOptions.zlib.level).not.toEqual(COMPRESSION_LEVEL.uncompressed);
     
       // Clean up the spy.
-      compressSpy.mockRestore();
-    });
-
-    it('zip should invoke compress for COMPRESSION_LEVEL.uncompressed', async () => {
-      
-      /**
-       * Sample 1:
-       * BlockStatement
-       * lib/ZipAFolder.ts:74:63
-       * -           if (o.compression === COMPRESSION_LEVEL.uncompressed) {
-       * -               await ZipAFolder.compress({\n-                   src,
-       * -                   targetFilePath: zipFilePath,
-       * -                   format: 'zip',
-       * -                   zipAFolderOptions,
-       * -                   archiverOptions: {
-       * -                       store: true,
-       * -                   },
-       * -               });
-       * -           } else {
-       * +           if (o.compression === COMPRESSION_LEVEL.uncompressed) {} else {",
-      * */
-      
-      // Spy on the internal compress method
-      const compressSpy = jest.spyOn(zipafolder as any, 'compress');
-      const testZipPath = path.resolve(__dirname, 'testZipCompressCalled.zip');
-      
-      await zip(path.resolve(__dirname, 'data/'), testZipPath, { compression: COMPRESSION_LEVEL.uncompressed });
-      
-      // In the original code, compress should have been called once.
-      expect(compressSpy).toHaveBeenCalledTimes(1);
-      
-      // Clean up the spy
       compressSpy.mockRestore();
     });
 

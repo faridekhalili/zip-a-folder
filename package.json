@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "test:augmented": "jest --runTestsByPath --testRegex 'test/.+\\.test\\.ts' test/augmented.test.ts",
-    "test": "jest --coverage",
+    "test": "jest --coverage --testRegex \"(test/tests-.+\\\\.ts|test/augmented\\\\.test\\\\.ts)\"",
     "build": "tsc --build --clean && tsc && npm run lint",
     "lint": "eslint . --ext .ts"
   },
